@@ -20,4 +20,6 @@ public:
     {
         return Vector3(0.0f, 0.0f, 0.0f);
     }
+
+    virtual float scatterPdf(const Ray& rayIn, const HitRecord& hitRecord, const Ray& scattered) const;
 };

@@ -7,14 +7,18 @@ Camera::Camera(
     int imageHeight,
     float verticalFov,
     float aperture,
-    float focusDistance
+    float focusDistance,
+    float shutterOpen,
+    float shutterClose
 )
     : position(0.0f, 0.0f, 0.0f),
       imageWidth(imageWidth),
       imageHeight(imageHeight),
       verticalFov(verticalFov),
       lensRadius(aperture > 0.0f ? aperture * 0.5f : 0.0f),
-      focusDistance(focusDistance > 0.0f ? focusDistance : 0.001f)
+      focusDistance(focusDistance > 0.0f ? focusDistance : 0.001f),
+      shutterOpen(shutterOpen),
+      shutterClose(shutterClose)
 {
     initialize();
 }
@@ -25,14 +29,18 @@ Camera::Camera(
     int imageHeight,
     float verticalFov,
     float aperture,
-    float focusDistance
+    float focusDistance,
+    float shutterOpen,
+    float shutterClose
 )
     : position(position),
       imageWidth(imageWidth),
       imageHeight(imageHeight),
       verticalFov(verticalFov),
       lensRadius(aperture > 0.0f ? aperture * 0.5f : 0.0f),
-      focusDistance(focusDistance > 0.0f ? focusDistance : 0.001f)
+      focusDistance(focusDistance > 0.0f ? focusDistance : 0.001f),
+      shutterOpen(shutterOpen),
+      shutterClose(shutterClose)
 {
     initialize();
 }
@@ -103,5 +111,8 @@ Ray Camera::getRay(float u, float v) const
     Vector3 direction =
         (focusPoint - rayOrigin).normalized();
 
-    return Ray(rayOrigin, direction);
+    float rayTime = shutterOpen +
+        Random::randomFloat() * (shutterClose - shutterOpen);
+
+    return Ray(rayOrigin, direction, rayTime);
 }

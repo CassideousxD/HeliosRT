@@ -43,3 +43,13 @@ void Scene::buildBVH()
     if (objects.empty()) return;
     bvhRoot = std::make_shared<BVHNode>(objects, 0, objects.size());
 }
+
+void Scene::addLight(std::shared_ptr<Light> light)
+{
+    lights.push_back(light);
+}
+
+const std::vector<std::shared_ptr<Light>>& Scene::getLights() const
+{
+    return lights;
+}

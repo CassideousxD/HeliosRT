@@ -3,6 +3,7 @@
 #include "loaders/OBJLoader.h"
 #include "material/ImageTexture.h"
 #include "scene/TransformNode.h"
+#include "scene/SphereLight.h"
 #include "material/Lambertian.h"
 #include "material/Metal.h"
 #include "material/Glass.h"
@@ -17,7 +18,7 @@ Renderer::Renderer(const RenderSettings& settings)
     : settings(settings),
       frameBuffer(settings.width, settings.height),
       accumulationBuffer(settings.width, settings.height),
-      camera(settings.width,settings.height,settings.verticalFov,settings.aperture,settings.focusDistance),
+      camera(settings.width,settings.height,settings.verticalFov,settings.aperture,settings.focusDistance,settings.shutterOpen,settings.shutterClose),
       integrator(),
       scene(),
       tileScheduler(settings.width, settings.height),
@@ -42,18 +43,18 @@ Renderer::Renderer(const RenderSettings& settings)
 
     scene.add(std::make_shared<Sphere>(
         Vector3(0.0f, -100.5f, -1.0f), 100.0f, groundMaterial));
-    //scene.add(std::make_shared<Sphere>(
-        //Vector3(0.0f, 0.0f, -1.2f), 0.5f, centerMaterial));
+    scene.add(std::make_shared<Sphere>(
+        Vector3(0.0f, 0.0f, -1.2f), 0.5f, centerMaterial));
     scene.add(std::make_shared<Sphere>(
         Vector3(-1.0f, 0.0f, -1.0f), 0.5f, glassMaterial));
-    //scene.add(std::make_shared<Sphere>(
-        //Vector3(-1.0f, 0.0f, -1.0f), -0.4f, glassMaterial));
+    scene.add(std::make_shared<Sphere>(
+        Vector3(-1.0f, 0.0f, -1.0f), -0.4f, glassMaterial));
     scene.add(std::make_shared<Sphere>(
         Vector3(1.0f, 0.0f, -1.0f), 0.5f, rightMetal));
-    //scene.add(std::make_shared<Sphere>(
-       // Vector3(0.0f, 2.0f, -1.0f), 0.8f, lightMaterial));
+    scene.add(std::make_shared<Sphere>(
+       Vector3(0.0f, 2.0f, -1.0f), 0.8f, lightMaterial));
 
-    auto bunnyMaterial = std::make_shared<Lambertian>(Vector3(0.8f, 0.5f, 0.3f));
+    /*auto bunnyMaterial = std::make_shared<Lambertian>(Vector3(0.8f, 0.5f, 0.3f));
     auto bunny = OBJLoader::load("../objs/stanford-bunny.obj", bunnyMaterial);
 
     if (bunny)
@@ -64,16 +65,25 @@ Renderer::Renderer(const RenderSettings& settings)
 
         float translateY = groundY - bunnyScale * bunnyLocalMinY;
 
+        auto bunnyStartTransform = Transform(
+            Vector3(0.0f, translateY, -3.0f),
+            Vector3(0.0f, 180.0f, 0.0f),
+            Vector3(bunnyScale, bunnyScale, bunnyScale));
+
+        auto bunnyEndTransform = Transform(
+            Vector3(1.5f, translateY, -3.0f),   // moves 1.5 units along X
+            Vector3(0.0f, 180.0f, 0.0f),
+            Vector3(bunnyScale, bunnyScale, bunnyScale));
+
         auto bunnyInstance =
             std::make_shared<TransformNode>(
                 bunny,
-                Transform(
-                    Vector3(0.0f, translateY, -3.0f),
-                    Vector3(0.0f, 180.0f, 0.0f),
-                    Vector3(bunnyScale, bunnyScale, bunnyScale)));
+                bunnyStartTransform,
+                bunnyEndTransform,
+                0.0f, 1.0f);
 
         scene.add(bunnyInstance);
-    }
+    }*/
 
     /*auto imageTexture =
         std::make_shared<ImageTexture>("../textures/Screenshot 2026-06-30 at 10.18.16 PM.png");
@@ -91,6 +101,22 @@ Renderer::Renderer(const RenderSettings& settings)
             0.5f,
             imageMaterial
         ));*/
+
+    /*auto movingSphere = std::make_shared<Sphere>(
+    Vector3(0.0f, 0.0f, -1.0f),   // start position
+    Vector3(0.3f, 0.0f, -1.0f),   // end position
+    0.0f, 1.0f,                    // shutter open/close
+    0.5f,
+    centerMaterial);
+
+    scene.add(movingSphere);*/
+
+    /*auto lightCenter = Vector3(0.0f, 2.0f, -1.0f);
+    float lightRadius = 0.8f;
+
+    scene.add(std::make_shared<Sphere>(lightCenter, lightRadius, lightMaterial));
+    scene.addLight(std::make_shared<SphereLight>(
+        lightCenter, lightRadius, Vector3(1.0f, 0.9f, 0.7f) * 4.0f));*/
 
     if (scene.getEnvironment().loadHDRI("../hdris/rogland_clear_night_4k.hdr"))
     {

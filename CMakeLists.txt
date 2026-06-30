@@ -20,6 +20,7 @@ set(SOURCES
     src/scene/scene.cpp
     src/scene/environment.cpp
     src/scene/TransformNode.cpp
+    src/scene/spherelight.cpp
 
     src/math/vector3.cpp
     src/math/ray.cpp

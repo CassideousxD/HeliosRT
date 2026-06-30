@@ -2,16 +2,21 @@
 
 Ray::Ray()
     : origin(),
-      direction()
+      direction(),
+      time(0.0f)
 {
 }
 
-Ray::Ray(const Vector3& origin,
-         const Vector3& direction,
-         float time)
+Ray::Ray(const Vector3& origin, const Vector3& direction, float time)
     : origin(origin),
-      direction(direction.normalized())
+      direction(direction),
+      time(time)
 {
+}
+
+float Ray::getTime() const
+{
+    return time;
 }
 
 const Vector3& Ray::getOrigin() const

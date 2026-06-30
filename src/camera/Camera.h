@@ -11,7 +11,9 @@ public:
         int imageHeight,
         float verticalFov,
         float aperture,
-        float focusDistance
+        float focusDistance,
+        float shutterOpen = 0.0f,
+        float shutterClose = 0.0f
     );
 
     Camera(
@@ -20,7 +22,9 @@ public:
         int imageHeight,
         float verticalFov,
         float aperture,
-        float focusDistance
+        float focusDistance,
+        float shutterOpen = 0.0f,
+        float shutterClose = 0.0f
     );
     const Vector3& getPosition() const;
     Ray getRay(float u, float v) const;
@@ -36,6 +40,8 @@ private:
     float verticalFov;
     float lensRadius;
     float focusDistance;
+    float shutterOpen;
+    float shutterClose;
 
     Vector3 horizontal;
     Vector3 vertical;

@@ -10,6 +10,13 @@ public:
         std::shared_ptr<Hittable> object,
         const Transform& transform);
 
+    TransformNode(
+        std::shared_ptr<Hittable> object,
+        const Transform& transformStart,
+        const Transform& transformEnd,
+        float timeStart,
+        float timeEnd);
+
     bool hit(
         const Ray& ray,
         float tMin,
@@ -24,4 +31,9 @@ public:
 private:
     std::shared_ptr<Hittable> object;
     Transform transform;
+    Transform transformEnd;
+    float timeStart;
+    float timeEnd;
+    bool isAnimated;
+    Transform interpolateTransform(float time) const;
 };

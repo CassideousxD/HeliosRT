@@ -10,10 +10,12 @@ public:
     const Vector3& getOrigin() const;
     const Vector3& getDirection() const;
     Vector3 at(float t) const;
+    float getTime() const;
 
 private:
     Vector3 origin;
     Vector3 direction;
+    float time;
 };
 
 #endif
