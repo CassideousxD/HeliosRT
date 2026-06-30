@@ -1,4 +1,4 @@
-# RayTracer
+# HeliosRT
 
 A physically based CPU path tracer written in modern C++ using SDL3.
 
