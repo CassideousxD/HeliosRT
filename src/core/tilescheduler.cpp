@@ -1,4 +1,5 @@
 #include "core/TileScheduler.h"
+#include <algorithm>
 
 TileScheduler::TileScheduler(int imageWidth, int imageHeight, int tileSize)
     : nextIndex(0)
@@ -15,16 +16,25 @@ TileScheduler::TileScheduler(int imageWidth, int imageHeight, int tileSize)
             tiles.push_back(tile);
         }
     }
+    convergedFlags.assign(tiles.size(), false);
 }
 
-std::optional<Tile> TileScheduler::getNextTile()
+std::optional<ScheduledTile> TileScheduler::getNextTile()
 {
-    int index = nextIndex.fetch_add(1);
-    if (index >= static_cast<int>(tiles.size()))
+    while (true)
     {
-        return std::nullopt;
+        int index = nextIndex.fetch_add(1);
+        if (index >= static_cast<int>(tiles.size()))
+            return std::nullopt;
+
+        if (!convergedFlags[index])
+            return ScheduledTile{ tiles[index], index };
     }
-    return tiles[index];
+}
+
+void TileScheduler::markConverged(int tileIndex)
+{
+    convergedFlags[tileIndex] = true;
 }
 
 void TileScheduler::reset()

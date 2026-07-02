@@ -13,10 +13,13 @@ public:
 
     int getWidth() const;
     int getHeight() const;
+    float getStandardError(int x, int y) const;
+    bool isConverged(int x, int y, float threshold) const;
 
 private:
     int width;
     int height;
     std::vector<Vector3> accumulator;
     std::vector<int> sampleCounts;
+    std::vector<Vector3> m2; 
 };

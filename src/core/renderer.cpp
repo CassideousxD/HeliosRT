@@ -11,6 +11,9 @@
 #include "material/Checkerboard.h"
 #include "material/SolidColor.h"
 #include "math/Random.h"
+#include "material/RoughConductor.h"
+#include "material/RoughDielectric.h"
+#include "primitives/ConstantMedium.h"
 #include <iostream>
 #include <memory>
 
@@ -25,7 +28,7 @@ Renderer::Renderer(const RenderSettings& settings)
       isRendering(false),
       currentPass(0)
 {
-    auto checker = std::make_shared<Checkerboard>(
+    /*auto checker = std::make_shared<Checkerboard>(
         std::make_shared<SolidColor>(Vector3(0.9f, 0.9f, 0.9f)),
         std::make_shared<SolidColor>(Vector3(0.2f, 0.5f, 0.1f))
     );
@@ -52,7 +55,7 @@ Renderer::Renderer(const RenderSettings& settings)
     scene.add(std::make_shared<Sphere>(
         Vector3(1.0f, 0.0f, -1.0f), 0.5f, rightMetal));
     scene.add(std::make_shared<Sphere>(
-       Vector3(0.0f, 2.0f, -1.0f), 0.8f, lightMaterial));
+       Vector3(0.0f, 2.0f, -1.0f), 0.8f, lightMaterial));*/
 
     /*auto bunnyMaterial = std::make_shared<Lambertian>(Vector3(0.8f, 0.5f, 0.3f));
     auto bunny = OBJLoader::load("../objs/stanford-bunny.obj", bunnyMaterial);
@@ -83,9 +86,9 @@ Renderer::Renderer(const RenderSettings& settings)
                 0.0f, 1.0f);
 
         scene.add(bunnyInstance);
-    }*/
+    }
 
-    /*auto imageTexture =
+    auto imageTexture =
         std::make_shared<ImageTexture>("../textures/Screenshot 2026-06-30 at 10.18.16 PM.png");
 
     if (!imageTexture->isLoaded())
@@ -100,23 +103,38 @@ Renderer::Renderer(const RenderSettings& settings)
             Vector3(0.0f, 0.0f, -1.2f),
             0.5f,
             imageMaterial
-        ));*/
+        ));
 
-    /*auto movingSphere = std::make_shared<Sphere>(
+    auto movingSphere = std::make_shared<Sphere>(
     Vector3(0.0f, 0.0f, -1.0f),   // start position
     Vector3(0.3f, 0.0f, -1.0f),   // end position
     0.0f, 1.0f,                    // shutter open/close
     0.5f,
     centerMaterial);
 
-    scene.add(movingSphere);*/
+    scene.add(movingSphere);
 
-    /*auto lightCenter = Vector3(0.0f, 2.0f, -1.0f);
+    auto lightCenter = Vector3(0.0f, 2.0f, -1.0f);
     float lightRadius = 0.8f;
 
     scene.add(std::make_shared<Sphere>(lightCenter, lightRadius, lightMaterial));
     scene.addLight(std::make_shared<SphereLight>(
-        lightCenter, lightRadius, Vector3(1.0f, 0.9f, 0.7f) * 4.0f));*/
+        lightCenter, lightRadius, Vector3(1.0f, 0.9f, 0.7f) * 4.0f));
+
+    auto roughGold = std::make_shared<RoughConductor>(Vector3(1.0f, 0.86f, 0.57f), 0.3f);
+    auto roughPlastic = std::make_shared<RoughDielectric>(Vector3(0.8f, 0.1f, 0.1f), 0.4f);
+
+    scene.add(std::make_shared<Sphere>(Vector3(-1.2f, 0.0f, -1.0f), 0.5f, roughGold));
+    scene.add(std::make_shared<Sphere>(Vector3( 1.2f, 0.0f, -1.0f), 0.5f, roughPlastic));*/
+
+    auto fogBoundary = std::make_shared<Sphere>(
+        Vector3(0.0f, 0.0f, -1.0f), 0.7f,
+        std::make_shared<Lambertian>(Vector3(1,1,1))); 
+
+    auto fog = std::make_shared<ConstantMedium>(
+        fogBoundary, 1.0f, Vector3(0.9f, 0.9f, 1.0f));
+
+    scene.add(fog);
 
     if (scene.getEnvironment().loadHDRI("../hdris/rogland_clear_night_4k.hdr"))
     {
@@ -204,9 +222,9 @@ void Renderer::renderPass()
         {
             while (isRendering)
             {
-                auto tile = tileScheduler.getNextTile();
-                if (!tile) break;
-                renderTile(*tile);
+                auto scheduled = tileScheduler.getNextTile();
+                if (!scheduled) break;
+                renderTile(*scheduled);
             }
         });
     }
@@ -215,8 +233,11 @@ void Renderer::renderPass()
         t.join();
 }
 
-void Renderer::renderTile(const Tile& tile)
+void Renderer::renderTile(const ScheduledTile& scheduledTile)
 {
+    const Tile& tile = scheduledTile.tile;
+    bool allConverged = settings.enableAdaptiveSampling;
+
     for (int y = tile.y; y < tile.y + tile.height; y++)
     {
         for (int x = tile.x; x < tile.x + tile.width; x++)
@@ -228,7 +249,18 @@ void Renderer::renderTile(const Tile& tile)
             Vector3 sample = integrator.trace(ray, scene, settings.maxRayDepth);
 
             accumulationBuffer.addSample(x, y, sample);
+
+            if (settings.enableAdaptiveSampling &&
+                !accumulationBuffer.isConverged(x, y, settings.adaptiveThreshold))
+            {
+                allConverged = false;
+            }
         }
+    }
+
+    if (allConverged)
+    {
+        tileScheduler.markConverged(scheduledTile.index);
     }
 }
 

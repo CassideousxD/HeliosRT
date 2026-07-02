@@ -40,6 +40,7 @@ set(SOURCES
     src/primitives/sphere.cpp
     src/primitives/triangle.cpp
     src/primitives/mesh.cpp
+    src/primitives/constantmedium.cpp
 
     src/material/material.cpp
     src/material/lambertian.cpp
@@ -49,6 +50,10 @@ set(SOURCES
     src/material/solidcolor.cpp
     src/material/checkerboard.cpp
     src/material/imagetexture.cpp
+    src/material/roughconductor.cpp
+    src/material/roughdielectric.cpp
+    src/material/isotropic.cpp
+
 
     src/acceleration/aabb.cpp
     src/acceleration/BVHNode.cpp

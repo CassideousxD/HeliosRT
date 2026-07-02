@@ -24,6 +24,9 @@ struct RenderSettings
     int threadCount = std::thread::hardware_concurrency();
     //Denoiser
     bool enableDenoiser = true;
+    //adaptive sampling
+    float adaptiveThreshold = 0.02f; // lower = higher quality, more samples
+    bool enableAdaptiveSampling = true;
 };
 
 #endif

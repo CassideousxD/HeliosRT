@@ -31,7 +31,7 @@ public:
 private:
     void renderLoop();
     void renderPass();
-    void renderTile(const Tile& tile);
+    void renderTile(const ScheduledTile& scheduledTile);
     float sampleOffset() const;
 
     RenderSettings settings;
